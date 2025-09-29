@@ -27,7 +27,7 @@ function OrgReports() { return <div style={{padding:24}}>Org Reports (placeholde
 export default function AppRoutes() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/Sentinel-flight-ops">
         <TopNav />
         <div style={{maxWidth:900, margin:'0 auto', padding:16}}>
           <Routes>
