@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { AuthProvider } from './hooks/useAuth';
 
 function TopNav() {
   return (
@@ -11,21 +12,23 @@ function TopNav() {
   );
 }
 
-function Dashboard() { return <div style={{padding:24}}>✅ Deployed! — Dashboard</div>; }
+function Dashboard() { return <div style={{padding:24}}>✅ Deployed! — Dashboard (authed shell)</div>; }
 function OrgReports() { return <div style={{padding:24}}>Org Reports (placeholder)</div>; }
 
 export default function AppRoutes() {
   return (
-    <BrowserRouter>
-      <TopNav />
-      <div style={{maxWidth:900, margin:'0 auto', padding:16}}>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/org/reports" element={<OrgReports />} />
-          <Route path="*" element={<div style={{padding:24}}>Not found</div>} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <TopNav />
+        <div style={{maxWidth:900, margin:'0 auto', padding:16}}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/org/reports" element={<OrgReports />} />
+            <Route path="*" element={<div style={{padding:24}}>Not found</div>} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
