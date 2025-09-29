@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // If your repo name is different, change the string below to: '/<your-repo-name>/'
 export default defineConfig({
   plugins: [react()],
-  base: '/sentinelsky-flight-ops/'
+  base: '/Sentinelsky-flight-ops/'
 })
