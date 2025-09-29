@@ -13,7 +13,15 @@ function TopNav() {
   );
 }
 
-function Dashboard() { return <div style={{padding:24}}>✅ Deployed! — Dashboard (authed shell)</div>; }
+function Dashboard() {
+  return (
+    <div style={{ padding: 24 }}>
+      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📋 My Dashboard</h2>
+      <UserCredentials />
+    </div>
+  );
+}
+
 function OrgReports() { return <div style={{padding:24}}>Org Reports (placeholder)</div>; }
 
 export default function AppRoutes() {
