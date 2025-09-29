@@ -38,29 +38,45 @@ function TopNav() {
 }
 
 /* =========================
-   USER CREDENTIALS PANEL
+   SIMPLE DASHBOARD
    ========================= */
-function UserCredentials() {
-  const { user, profile } = useAuth();
-  const [pilotId, setPilotId] = useState(profile?.pilotId || '');
-  const [pilotExpiry, setPilotExpiry] = useState(profile?.pilotExpiry || '');
-  const [pilotCert, setPilotCert] = useState(profile?.pilotCert || 'non'); // non | a2coc | gvc
-  const [operatorId, setOperatorId] = useState(profile?.operatorId || '');
-  const [operatorExpiry, setOperatorExpiry] = useState(profile?.operatorExpiry || '');
-  const [orgOperatorId, setOrgOperatorId] = useState(profile?.orgOperatorId || '');
-  const [orgOperatorExpiry, setOrgOperatorExpiry] = useState(profile?.orgOperatorExpiry || '');
-  const [status, setStatus] = useState('');
+function RiskDashboard() {
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold">📋 Risk Dashboard</h2>
+      <p>This is a placeholder dashboard. Risk reports and planning tools will appear here.</p>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    setPilotId(profile?.pilotId || '');
-    setPilotExpiry(profile?.pilotExpiry || '');
-    setPilotCert(profile?.pilotCert || 'non');
-    setOperatorId(profile?.operatorId || '');
-    setOperatorExpiry(profile?.operatorExpiry || '');
-    setOrgOperatorId(profile?.orgOperatorId || '');
-    setOrgOperatorExpiry(profile?.orgOperatorExpiry || '');
-  }, [profile]);
+/* =========================
+   PLACEHOLDERS
+   ========================= */
+function OrgReportsDashboard() { return <div className="p-4">Org Reports (placeholder)</div>; }
+function OrgUserAdmin() { return <div className="p-4">Org Users (placeholder)</div>; }
+function OrgRiskSettings() { return <div className="p-4">Risk Settings (placeholder)</div>; }
+function AdminPanel() { return <div className="p-4">Admin Panel (placeholder)</div>; }
 
-  const save = async () => {
-    if (!user) return;
-    await setDoc(doc(db, 'users
+/* =========================
+   APP ROUTES
+   ========================= */
+export default function AppRoutes() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <TopNav />
+        <div className="max-w-6xl mx-auto p-4">
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<RiskDashboard />} />
+            <Route path="/org/reports" element={<OrgReportsDashboard />} />
+            <Route path="/org/users" element={<OrgUserAdmin />} />
+            <Route path="/settings/risk" element={<OrgRiskSettings />} />
+            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="*" element={<div className="p-6">Not found</div>} />
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
