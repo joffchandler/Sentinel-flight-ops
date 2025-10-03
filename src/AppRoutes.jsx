@@ -4,6 +4,7 @@ import { useAuth, AuthProvider } from './hooks/useAuth.jsx';
 import UserCredentials from './components/UserCredentials.jsx';
 import OrgInfo from './components/OrgInfo.jsx';
 import CreateOrg from './components/CreateOrg.jsx';
+import InviteUser from './components/InviteUser.jsx';
 
 /* ---------------------------
    Top Navigation
@@ -25,7 +26,10 @@ function TopNav() {
       <Link to="/reports" style={{ color: '#fff' }}>Reports</Link>
 
       {profile?.role === 'orgAdmin' && (
-        <Link to="/org-info" style={{ color: '#fff' }}>Org Info</Link>
+        <>
+          <Link to="/org-info" style={{ color: '#fff' }}>Org Info</Link>
+          <Link to="/invite-user" style={{ color: '#fff' }}>Invite User</Link>
+        </>
       )}
       {profile?.role === 'superAdmin' && (
         <Link to="/create-org" style={{ color: '#fff' }}>Create Org</Link>
@@ -105,6 +109,7 @@ function RoutesInner() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/org-info" element={<OrgInfo />} />
+          <Route path="/invite-user" element={<InviteUser />} />
           <Route path="/create-org" element={<CreateOrg />} />
           <Route path="*" element={<div>Not found</div>} />
         </Routes>
