@@ -1,43 +1,30 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
-import { AuthProvider } from './hooks/useAuth.jsx';
-import UserCredentials from './components/UserCredentials.jsx';
-
-function TopNav() {
-  return (
-    <nav style={{background:'#111', color:'#fff', padding:'10px 16px', display:'flex', gap:12}}>
-      <Link to="/" style={{color:'#fff', textDecoration:'none', fontWeight:600}}>SentinelSky</Link>
-      <Link to="/dashboard" style={{color:'#fff'}}>My Dashboard</Link>
-      <Link to="/org/reports" style={{color:'#fff'}}>Org Reports</Link>
-    </nav>
-  );
-}
+import React from 'react'
+import { HashRouter, Routes, Route, Link, Navigate } from 'react-router-dom'
 
 function Dashboard() {
-  return (
-    <div style={{ padding: 24 }}>
-      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📋 My Dashboard</h2>
-      <UserCredentials />
-    </div>
-  );
+  return <div style={{ padding: 24 }}>✅ Deployed! — SentinelSky Dashboard</div>
 }
 
-function OrgReports() { return <div style={{padding:24}}>Org Reports (placeholder)</div>; }
+function Reports() {
+  return <div style={{ padding: 24 }}>📋 Reports placeholder</div>
+}
 
 export default function AppRoutes() {
   return (
-    <AuthProvider>
-      <BrowserRouter basename="/Sentinel-flight-ops">
-        <TopNav />
-        <div style={{maxWidth:900, margin:'0 auto', padding:16}}>
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/org/reports" element={<OrgReports />} />
-            <Route path="*" element={<div style={{padding:24}}>Not found</div>} />
-          </Routes>
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
-  );
+    <HashRouter>
+      <nav style={{ background: '#111', color: '#fff', padding: '10px 16px', display: 'flex', gap: 12 }}>
+        <Link to="/" style={{ color: '#fff' }}>Home</Link>
+        <Link to="/dashboard" style={{ color: '#fff' }}>Dashboard</Link>
+        <Link to="/reports" style={{ color: '#fff' }}>Reports</Link>
+      </nav>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: 16 }}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="*" element={<div>Not found</div>} />
+        </Routes>
+      </div>
+    </HashRouter>
+  )
 }
