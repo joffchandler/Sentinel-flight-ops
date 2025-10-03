@@ -1,7 +1,19 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from '../firebase';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, getDocs } from 'firebase/firestore';
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+} from 'firebase/auth';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collectionGroup,
+  getDocs,
+  updateDoc
+} from 'firebase/firestore';
 
 const Ctx = createContext(null);
 
@@ -15,44 +27,38 @@ export function AuthProvider({ children }) {
       setUser(u);
 
       if (u) {
-        // Does this user already have a profile?
         const userRef = doc(db, 'users', u.uid);
-        const userSnap = await getDoc(userRef);
+        const snap = await getDoc(userRef);
 
-        if (!userSnap.exists()) {
-          // Check if any organisation exists
-          const orgsSnap = await getDocs(collection(db, 'organisations'));
+        if (!snap.exists()) {
+          // Look for an invite matching this email
+          const invitesSnap = await getDocs(collectionGroup(db, 'invites'));
+          const match = invitesSnap.docs.find(
+            (d) =>
+              d.data().email === u.email.toLowerCase() &&
+              d.data().status === 'pending'
+          );
 
-          if (orgsSnap.empty) {
-            // No orgs exist → bootstrap first org + admin
-            const orgId = 'sentinel-sky'; // you can later make this dynamic
-            await setDoc(doc(db, 'organisations', orgId), {
-              name: 'Sentinel Sky Technologies',
-              operatorId: '',
-              expiryDate: '',
-              maxUsers: 5,
-              createdBy: u.uid,
-            });
-
-            await setDoc(userRef, {
-              email: u.email,
-              role: 'orgAdmin',
-              orgId,
-            });
-            setProfile({ email: u.email, role: 'orgAdmin', orgId });
+          if (match) {
+            const orgId = match.ref.parent.parent.id;
+            await setDoc(
+              userRef,
+              { email: u.email, role: 'user', orgId },
+              { merge: true }
+            );
+            setProfile({ email: u.email, role: 'user', orgId });
+            await updateDoc(match.ref, { status: 'accepted' });
           } else {
-            // Org exists → new user gets basic role
-            const firstOrg = orgsSnap.docs[0].id;
-            await setDoc(userRef, {
-              email: u.email,
-              role: 'user',
-              orgId: firstOrg,
-            });
-            setProfile({ email: u.email, role: 'user', orgId: firstOrg });
+            // No invite found — user exists but unassigned
+            await setDoc(
+              userRef,
+              { email: u.email, role: null, orgId: null },
+              { merge: true }
+            );
+            setProfile({ email: u.email, role: null, orgId: null });
           }
         } else {
-          // Existing user → load profile
-          setProfile(userSnap.data());
+          setProfile(snap.data());
         }
       } else {
         setProfile(null);
