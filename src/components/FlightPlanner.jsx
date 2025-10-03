@@ -22,7 +22,8 @@ export default function FlightPlanner() {
   const [overrideFile, setOverrideFile] = useState(null);
   const [overrideActive, setOverrideActive] = useState(false);
 
-  if (!profile?.orgId) {
+  if (!profile) return <div style={{ padding: 24 }}>Loading profile…</div>;
+  if (!profile.orgId) {
     return <div style={{ padding: 24 }}>❌ You must belong to an organisation to plan flights.</div>;
   }
 
@@ -45,7 +46,7 @@ export default function FlightPlanner() {
       link: `https://www.google.com/maps/search/nearest+accident+and+emergency+hospital/@${lat},${lng},10z`
     });
 
-    // Drone Safety Map (Altitude Angel) check
+    // Drone Safety Map (Altitude Angel)
     try {
       const url = `https://dronesafetymap.com/#lat=${lat}&lon=${lng}&z=12`;
       const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
