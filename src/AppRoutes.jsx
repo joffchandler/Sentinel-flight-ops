@@ -5,6 +5,7 @@ import UserCredentials from './components/UserCredentials.jsx';
 import OrgInfo from './components/OrgInfo.jsx';
 import CreateOrg from './components/CreateOrg.jsx';
 import InviteUser from './components/InviteUser.jsx';
+import OrgManagement from './components/OrgManagement.jsx';
 import FlightPlanner from './components/FlightPlanner.jsx';
 
 /* ---------------------------
@@ -43,8 +44,8 @@ function TopNav() {
           <Link to="/org-info" style={{ color: '#fff' }}>
             Org Info
           </Link>
-          <Link to="/invite-user" style={{ color: '#fff' }}>
-            Invite User
+          <Link to="/org-management" style={{ color: '#fff' }}>
+            Org Management
           </Link>
         </>
       )}
@@ -187,6 +188,7 @@ function RoutesInner() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/plan-flight" element={<FlightPlanner />} />
           <Route path="/org-info" element={<OrgInfo />} />
+          <Route path="/org-management" element={<OrgManagement />} />
           <Route path="/invite-user" element={<InviteUser />} />
           <Route path="/create-org" element={<CreateOrg />} />
           <Route path="*" element={<div>Not found</div>} />
