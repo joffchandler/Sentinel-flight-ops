@@ -5,6 +5,7 @@ import UserCredentials from './components/UserCredentials.jsx';
 import OrgInfo from './components/OrgInfo.jsx';
 import CreateOrg from './components/CreateOrg.jsx';
 import InviteUser from './components/InviteUser.jsx';
+import FlightPlanner from './components/FlightPlanner.jsx';
 
 /* ---------------------------
    Top Navigation
@@ -13,27 +14,48 @@ function TopNav() {
   const { user, login, logout, profile } = useAuth();
 
   return (
-    <nav style={{
-      background: '#111',
-      color: '#fff',
-      padding: '10px 16px',
-      display: 'flex',
-      gap: 12,
-      alignItems: 'center',
-      flexWrap: 'wrap'
-    }}>
-      <Link to="/" style={{ color: '#fff', fontWeight: 600 }}>SentinelSky</Link>
-      <Link to="/dashboard" style={{ color: '#fff' }}>Dashboard</Link>
-      <Link to="/reports" style={{ color: '#fff' }}>Reports</Link>
+    <nav
+      style={{
+        background: '#111',
+        color: '#fff',
+        padding: '10px 16px',
+        display: 'flex',
+        gap: 12,
+        alignItems: 'center',
+        flexWrap: 'wrap'
+      }}
+    >
+      <Link to="/" style={{ color: '#fff', fontWeight: 600 }}>
+        SentinelSky
+      </Link>
+      <Link to="/dashboard" style={{ color: '#fff' }}>
+        Dashboard
+      </Link>
+      <Link to="/reports" style={{ color: '#fff' }}>
+        Reports
+      </Link>
+
+      {profile?.orgId && (
+        <Link to="/plan-flight" style={{ color: '#fff' }}>
+          Plan Flight
+        </Link>
+      )}
 
       {profile?.role === 'orgAdmin' && (
         <>
-          <Link to="/org-info" style={{ color: '#fff' }}>Org Info</Link>
-          <Link to="/invite-user" style={{ color: '#fff' }}>Invite User</Link>
+          <Link to="/org-info" style={{ color: '#fff' }}>
+            Org Info
+          </Link>
+          <Link to="/invite-user" style={{ color: '#fff' }}>
+            Invite User
+          </Link>
         </>
       )}
+
       {profile?.role === 'superAdmin' && (
-        <Link to="/create-org" style={{ color: '#fff' }}>Create Org</Link>
+        <Link to="/create-org" style={{ color: '#fff' }}>
+          Create Org
+        </Link>
       )}
 
       <div style={{ marginLeft: 'auto' }}>
@@ -67,15 +89,17 @@ function TopNav() {
       </div>
 
       {profile?.expiryWarning && (
-        <div style={{
-          background: '#fef9c3',
-          color: '#92400e',
-          padding: '4px 8px',
-          borderRadius: 4,
-          fontSize: 13,
-          marginLeft: 12,
-          fontWeight: 600
-        }}>
+        <div
+          style={{
+            background: '#fef9c3',
+            color: '#92400e',
+            padding: '4px 8px',
+            borderRadius: 4,
+            fontSize: 13,
+            marginLeft: 12,
+            fontWeight: 600
+          }}
+        >
           ⚠️ Org subscription expires in {profile.expiryWarning} days
         </div>
       )}
@@ -92,7 +116,8 @@ function Dashboard() {
   if (profile?.expired) {
     return (
       <div style={{ padding: 24, color: '#991b1b' }}>
-        ❌ Your organisation’s subscription has expired.  
+        ❌ Your organisation’s subscription has expired.
+        <br />
         Please contact your administrator.
       </div>
     );
@@ -100,17 +125,21 @@ function Dashboard() {
 
   return (
     <div style={{ padding: 24 }}>
-      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📋 Dashboard</h2>
+      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>
+        📋 Dashboard
+      </h2>
 
       {profile?.expiryWarning && (
-        <div style={{
-          background: '#fef9c3',
-          color: '#92400e',
-          padding: '8px 12px',
-          borderRadius: 6,
-          marginBottom: 12,
-          fontWeight: 600
-        }}>
+        <div
+          style={{
+            background: '#fef9c3',
+            color: '#92400e',
+            padding: '8px 12px',
+            borderRadius: 6,
+            marginBottom: 12,
+            fontWeight: 600
+          }}
+        >
           ⚠️ Subscription expires in {profile.expiryWarning} days
         </div>
       )}
@@ -139,7 +168,9 @@ function Reports() {
 
   return (
     <div style={{ padding: 24 }}>
-      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📊 Reports</h2>
+      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>
+        📊 Reports
+      </h2>
       <p>This is a placeholder for organisation and flight reports.</p>
     </div>
   );
@@ -157,6 +188,7 @@ function RoutesInner() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/plan-flight" element={<FlightPlanner />} />
           <Route path="/org-info" element={<OrgInfo />} />
           <Route path="/invite-user" element={<InviteUser />} />
           <Route path="/create-org" element={<CreateOrg />} />
