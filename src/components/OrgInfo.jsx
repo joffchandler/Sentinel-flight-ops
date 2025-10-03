@@ -21,6 +21,7 @@ export default function OrgInfo() {
   const [expiryDate, setExpiryDate] = useState('');
   const [maxUsers, setMaxUsers] = useState(0);
   const [status, setStatus] = useState('');
+  const [history, setHistory] = useState([]);
 
   // Load all orgs if superAdmin
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function OrgInfo() {
     loadOrgs();
   }, [profile]);
 
-  // Load selected org data
+  // Load selected org data + history
   useEffect(() => {
     const loadOrg = async () => {
       if (!selectedOrgId) return;
@@ -47,6 +48,17 @@ export default function OrgInfo() {
         setExpiryDate(data.expiryDate || '');
         setMaxUsers(data.maxUsers || 0);
       }
+
+      // Load history
+      const histSnap = await getDocs(collection(db, 'organisations', selectedOrgId, 'history'));
+      const records = histSnap.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+        timestamp: d.data().timestamp?.toDate?.().toLocaleString?.() || ''
+      }));
+      // Sort by latest first
+      records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setHistory(records);
     };
     loadOrg();
   }, [selectedOrgId]);
@@ -71,6 +83,16 @@ export default function OrgInfo() {
 
       setStatus('✅ Organisation updated');
       setTimeout(() => setStatus(''), 2500);
+
+      // Refresh history
+      const histSnap = await getDocs(collection(db, 'organisations', selectedOrgId, 'history'));
+      const records = histSnap.docs.map(d => ({
+        id: d.id,
+        ...d.data(),
+        timestamp: d.data().timestamp?.toDate?.().toLocaleString?.() || ''
+      }));
+      records.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setHistory(records);
     } catch (err) {
       console.error(err);
       setStatus('❌ Failed to update');
@@ -181,6 +203,26 @@ export default function OrgInfo() {
           </button>
 
           {status && <div style={{ marginTop: 10 }}>{status}</div>}
+
+          {/* History Viewer */}
+          <div style={{ marginTop: 24 }}>
+            <h3 style={{ fontWeight: 600, marginBottom: 8 }}>📜 Change History</h3>
+            {history.length > 0 ? (
+              <ul style={{ listStyle: 'none', padding: 0 }}>
+                {history.map((h) => (
+                  <li key={h.id} style={{ marginBottom: 8, padding: 8, border: '1px solid #ddd', borderRadius: 4 }}>
+                    <div><strong>{h.timestamp}</strong></div>
+                    <div>By: {h.updatedBy} ({h.updatedByRole})</div>
+                    <pre style={{ background: '#f9fafb', padding: 6, borderRadius: 4, marginTop: 4 }}>
+                      {JSON.stringify(h.updates, null, 2)}
+                    </pre>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No history recorded yet.</p>
+            )}
+          </div>
         </>
       ) : (
         <p>No organisation found.</p>
