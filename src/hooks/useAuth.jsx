@@ -30,6 +30,8 @@ export function AuthProvider({ children }) {
         const userRef = doc(db, 'users', u.uid);
         const snap = await getDoc(userRef);
 
+        let userData;
+
         if (!snap.exists()) {
           // Look for an invite matching this email
           const invitesSnap = await getDocs(collectionGroup(db, 'invites'));
@@ -46,20 +48,35 @@ export function AuthProvider({ children }) {
               { email: u.email, role: 'user', orgId },
               { merge: true }
             );
-            setProfile({ email: u.email, role: 'user', orgId });
+            userData = { email: u.email, role: 'user', orgId };
             await updateDoc(match.ref, { status: 'accepted' });
           } else {
-            // No invite found — user exists but unassigned
+            // No invite found
             await setDoc(
               userRef,
               { email: u.email, role: null, orgId: null },
               { merge: true }
             );
-            setProfile({ email: u.email, role: null, orgId: null });
+            userData = { email: u.email, role: null, orgId: null };
           }
         } else {
-          setProfile(snap.data());
+          userData = snap.data();
         }
+
+        // If user has an org, check expiry
+        if (userData?.orgId) {
+          const orgSnap = await getDoc(doc(db, 'organisations', userData.orgId));
+          if (orgSnap.exists()) {
+            const org = orgSnap.data();
+            const today = new Date().toISOString().split('T')[0];
+            if (org.expiryDate && org.expiryDate < today) {
+              // Subscription expired
+              userData.expired = true;
+            }
+          }
+        }
+
+        setProfile(userData);
       } else {
         setProfile(null);
       }
