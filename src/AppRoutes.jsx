@@ -19,7 +19,8 @@ function TopNav() {
       padding: '10px 16px',
       display: 'flex',
       gap: 12,
-      alignItems: 'center'
+      alignItems: 'center',
+      flexWrap: 'wrap'
     }}>
       <Link to="/" style={{ color: '#fff', fontWeight: 600 }}>SentinelSky</Link>
       <Link to="/dashboard" style={{ color: '#fff' }}>Dashboard</Link>
@@ -64,6 +65,20 @@ function TopNav() {
           </button>
         )}
       </div>
+
+      {profile?.expiryWarning && (
+        <div style={{
+          background: '#fef9c3',
+          color: '#92400e',
+          padding: '4px 8px',
+          borderRadius: 4,
+          fontSize: 13,
+          marginLeft: 12,
+          fontWeight: 600
+        }}>
+          ⚠️ Org subscription expires in {profile.expiryWarning} days
+        </div>
+      )}
     </nav>
   );
 }
@@ -86,11 +101,26 @@ function Dashboard() {
   return (
     <div style={{ padding: 24 }}>
       <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📋 Dashboard</h2>
+
+      {profile?.expiryWarning && (
+        <div style={{
+          background: '#fef9c3',
+          color: '#92400e',
+          padding: '8px 12px',
+          borderRadius: 6,
+          marginBottom: 12,
+          fontWeight: 600
+        }}>
+          ⚠️ Subscription expires in {profile.expiryWarning} days
+        </div>
+      )}
+
       {profile?.orgId && (
         <div style={{ marginBottom: 12, fontSize: 14, color: '#374151' }}>
           Organisation ID: <strong>{profile.orgId}</strong>
         </div>
       )}
+
       <UserCredentials />
     </div>
   );
