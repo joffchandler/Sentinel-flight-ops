@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useAuth, AuthProvider } from './hooks/useAuth.jsx';
 import UserCredentials from './components/UserCredentials.jsx';
 import OrgInfo from './components/OrgInfo.jsx';
+import CreateOrg from './components/CreateOrg.jsx';
 
 /* ---------------------------
    Top Navigation
@@ -25,6 +26,9 @@ function TopNav() {
 
       {profile?.role === 'orgAdmin' && (
         <Link to="/org-info" style={{ color: '#fff' }}>Org Info</Link>
+      )}
+      {profile?.role === 'superAdmin' && (
+        <Link to="/create-org" style={{ color: '#fff' }}>Create Org</Link>
       )}
 
       <div style={{ marginLeft: 'auto' }}>
@@ -64,9 +68,16 @@ function TopNav() {
    Pages
 ---------------------------- */
 function Dashboard() {
+  const { profile } = useAuth();
+
   return (
     <div style={{ padding: 24 }}>
       <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📋 Dashboard</h2>
+      {profile?.orgId && (
+        <div style={{ marginBottom: 12, fontSize: 14, color: '#374151' }}>
+          Organisation ID: <strong>{profile.orgId}</strong>
+        </div>
+      )}
       <UserCredentials />
     </div>
   );
@@ -94,6 +105,7 @@ function RoutesInner() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/org-info" element={<OrgInfo />} />
+          <Route path="/create-org" element={<CreateOrg />} />
           <Route path="*" element={<div>Not found</div>} />
         </Routes>
       </div>
