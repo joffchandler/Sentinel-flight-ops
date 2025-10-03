@@ -34,12 +34,9 @@ function TopNav() {
       <Link to="/reports" style={{ color: '#fff' }}>
         Reports
       </Link>
-
-      {profile?.orgId && (
-        <Link to="/plan-flight" style={{ color: '#fff' }}>
-          Plan Flight
-        </Link>
-      )}
+      <Link to="/plan-flight" style={{ color: '#fff' }}>
+        Plan Flight
+      </Link>
 
       {profile?.role === 'orgAdmin' && (
         <>
