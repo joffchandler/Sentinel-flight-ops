@@ -1,111 +1,107 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { useAuth } from '../hooks/useAuth.jsx';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function OrgInfo() {
-  const { user, profile } = useAuth();
-  const [orgData, setOrgData] = useState(null);
+  const { profile } = useAuth();
+  const [org, setOrg] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [operatorId, setOperatorId] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
   const [status, setStatus] = useState('');
 
   useEffect(() => {
-    if (!profile?.orgId) return;
     const loadOrg = async () => {
+      if (!profile?.orgId) return;
       const snap = await getDoc(doc(db, 'organisations', profile.orgId));
       if (snap.exists()) {
-        setOrgData(snap.data());
-      } else {
-        // create empty org doc if missing
-        await setDoc(doc(db, 'organisations', profile.orgId), {
-          operatorId: '',
-          expiryDate: '',
-          maxUsers: 1,
-          createdBy: user.uid,
-        });
-        setOrgData({
-          operatorId: '',
-          expiryDate: '',
-          maxUsers: 1,
-          createdBy: user.uid,
-        });
+        const data = snap.data();
+        setOrg(data);
+        setOperatorId(data.operatorId || '');
+        setExpiryDate(data.expiryDate || '');
       }
       setLoading(false);
     };
     loadOrg();
-  }, [profile, user]);
+  }, [profile]);
 
   const save = async () => {
     if (!profile?.orgId) return;
-    await setDoc(doc(db, 'organisations', profile.orgId), orgData, { merge: true });
-    setStatus('✅ Saved');
-    setTimeout(() => setStatus(''), 2000);
+    try {
+      await updateDoc(doc(db, 'organisations', profile.orgId), {
+        operatorId,
+        expiryDate
+      });
+      setStatus('✅ Organisation updated');
+      setTimeout(() => setStatus(''), 2500);
+    } catch (err) {
+      console.error(err);
+      setStatus('❌ Failed to update');
+    }
   };
 
-  if (!profile?.role || profile.role !== 'orgAdmin') {
-    return <div style={{ padding: 24 }}>❌ Access denied — only org admins can view this page.</div>;
+  if (!profile) return <div style={{ padding: 24 }}>Please log in.</div>;
+  if (profile.role !== 'orgAdmin' && profile.role !== 'superAdmin') {
+    return <div style={{ padding: 24 }}>❌ Access denied.</div>;
   }
-
-  if (loading) return <div style={{ padding: 24 }}>Loading organisation info…</div>;
+  if (loading) return <div style={{ padding: 24 }}>Loading...</div>;
 
   return (
     <div style={{ padding: 24 }}>
-      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 16 }}>🏢 Organisation Info</h2>
+      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>🏢 Organisation Info</h2>
 
-      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
-        <label>
-          Organisation Operator ID
-          <input
-            style={inputStyle}
-            value={orgData.operatorId || ''}
-            onChange={(e) => setOrgData({ ...orgData, operatorId: e.target.value })}
-            placeholder="GBR-ORG-XXXX"
-          />
-        </label>
+      {org ? (
+        <>
+          <div style={{ marginBottom: 8 }}>
+            <strong>Name:</strong> {org.name}
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <strong>Organisation ID:</strong> {profile.orgId}
+          </div>
+          <div style={{ marginBottom: 8 }}>
+            <strong>Max Users:</strong> {org.maxUsers} (editable only by Super Admin)
+          </div>
 
-        <label>
-          Subscription Expiry Date
-          <input
-            type="date"
-            style={inputStyle}
-            value={orgData.expiryDate || ''}
-            onChange={(e) => setOrgData({ ...orgData, expiryDate: e.target.value })}
-          />
-        </label>
+          <label style={{ display: 'block', marginBottom: 12 }}>
+            Operator ID:
+            <input
+              style={{ display: 'block', marginTop: 4, padding: 6, border: '1px solid #ccc', borderRadius: 4 }}
+              value={operatorId}
+              onChange={(e) => setOperatorId(e.target.value)}
+              placeholder="GBR-ORG-123"
+            />
+          </label>
 
-        <label>
-          Max Users
-          <input
-            type="number"
-            min="1"
-            style={inputStyle}
-            value={orgData.maxUsers || 1}
-            onChange={(e) => setOrgData({ ...orgData, maxUsers: parseInt(e.target.value) })}
-          />
-        </label>
-      </div>
+          <label style={{ display: 'block', marginBottom: 12 }}>
+            Expiry Date:
+            <input
+              type="date"
+              style={{ display: 'block', marginTop: 4, padding: 6, border: '1px solid #ccc', borderRadius: 4 }}
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+            />
+          </label>
 
-      <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-        <button onClick={save} style={btnStyle}>Save</button>
-        {status && <span>{status}</span>}
-      </div>
+          <button
+            onClick={save}
+            style={{
+              background: '#2563eb',
+              color: '#fff',
+              border: 'none',
+              padding: '6px 12px',
+              borderRadius: 4,
+              fontWeight: 600
+            }}
+          >
+            Save Changes
+          </button>
+
+          {status && <div style={{ marginTop: 10 }}>{status}</div>}
+        </>
+      ) : (
+        <p>No organisation found.</p>
+      )}
     </div>
   );
 }
-
-const inputStyle = {
-  width: '100%',
-  border: '1px solid #ccc',
-  borderRadius: 6,
-  padding: '6px 8px',
-  marginTop: 4,
-};
-
-const btnStyle = {
-  background: '#2563eb',
-  color: '#fff',
-  border: 'none',
-  padding: '8px 12px',
-  borderRadius: 6,
-  cursor: 'pointer',
-};
