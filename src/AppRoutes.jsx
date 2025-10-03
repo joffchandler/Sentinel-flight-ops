@@ -2,12 +2,13 @@ import React from 'react';
 import { HashRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useAuth, AuthProvider } from './hooks/useAuth.jsx';
 import UserCredentials from './components/UserCredentials.jsx';
+import OrgInfo from './components/OrgInfo.jsx';
 
 /* ---------------------------
    Top Navigation
 ---------------------------- */
 function TopNav() {
-  const { user, login, logout } = useAuth();
+  const { user, login, logout, profile } = useAuth();
 
   return (
     <nav style={{
@@ -21,6 +22,10 @@ function TopNav() {
       <Link to="/" style={{ color: '#fff', fontWeight: 600 }}>SentinelSky</Link>
       <Link to="/dashboard" style={{ color: '#fff' }}>Dashboard</Link>
       <Link to="/reports" style={{ color: '#fff' }}>Reports</Link>
+
+      {profile?.role === 'orgAdmin' && (
+        <Link to="/org-info" style={{ color: '#fff' }}>Org Info</Link>
+      )}
 
       <div style={{ marginLeft: 'auto' }}>
         {user ? (
@@ -88,6 +93,7 @@ function RoutesInner() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/org-info" element={<OrgInfo />} />
           <Route path="*" element={<div>Not found</div>} />
         </Routes>
       </div>
