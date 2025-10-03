@@ -1,6 +1,7 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useAuth, AuthProvider } from './hooks/useAuth.jsx';
+import UserCredentials from './components/UserCredentials.jsx';
 
 /* ---------------------------
    Top Navigation
@@ -10,8 +11,12 @@ function TopNav() {
 
   return (
     <nav style={{
-      background: '#111', color: '#fff', padding: '10px 16px',
-      display: 'flex', gap: 12, alignItems: 'center'
+      background: '#111',
+      color: '#fff',
+      padding: '10px 16px',
+      display: 'flex',
+      gap: 12,
+      alignItems: 'center'
     }}>
       <Link to="/" style={{ color: '#fff', fontWeight: 600 }}>SentinelSky</Link>
       <Link to="/dashboard" style={{ color: '#fff' }}>Dashboard</Link>
@@ -21,16 +26,26 @@ function TopNav() {
         {user ? (
           <button
             onClick={logout}
-            style={{ background: '#dc2626', color: '#fff', border: 'none',
-                     padding: '6px 10px', borderRadius: 4 }}
+            style={{
+              background: '#dc2626',
+              color: '#fff',
+              border: 'none',
+              padding: '6px 10px',
+              borderRadius: 4
+            }}
           >
             Logout
           </button>
         ) : (
           <button
             onClick={login}
-            style={{ background: '#2563eb', color: '#fff', border: 'none',
-                     padding: '6px 10px', borderRadius: 4 }}
+            style={{
+              background: '#2563eb',
+              color: '#fff',
+              border: 'none',
+              padding: '6px 10px',
+              borderRadius: 4
+            }}
           >
             Login
           </button>
@@ -41,18 +56,28 @@ function TopNav() {
 }
 
 /* ---------------------------
-   Dummy Pages
+   Pages
 ---------------------------- */
 function Dashboard() {
-  return <div style={{ padding: 24 }}>📋 Dashboard page (signed in users will see more here later)</div>;
+  return (
+    <div style={{ padding: 24 }}>
+      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📋 Dashboard</h2>
+      <UserCredentials />
+    </div>
+  );
 }
 
 function Reports() {
-  return <div style={{ padding: 24 }}>📊 Reports placeholder</div>;
+  return (
+    <div style={{ padding: 24 }}>
+      <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📊 Reports</h2>
+      <p>This is a placeholder for organisation and flight reports.</p>
+    </div>
+  );
 }
 
 /* ---------------------------
-   App Routes
+   Routes
 ---------------------------- */
 function RoutesInner() {
   return (
