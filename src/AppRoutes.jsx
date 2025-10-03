@@ -74,6 +74,15 @@ function TopNav() {
 function Dashboard() {
   const { profile } = useAuth();
 
+  if (profile?.expired) {
+    return (
+      <div style={{ padding: 24, color: '#991b1b' }}>
+        ❌ Your organisation’s subscription has expired.  
+        Please contact your administrator.
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: 24 }}>
       <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📋 Dashboard</h2>
@@ -88,6 +97,16 @@ function Dashboard() {
 }
 
 function Reports() {
+  const { profile } = useAuth();
+
+  if (profile?.expired) {
+    return (
+      <div style={{ padding: 24, color: '#991b1b' }}>
+        ❌ Cannot access reports — organisation subscription expired.
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: 24 }}>
       <h2 style={{ fontWeight: 700, fontSize: 20, marginBottom: 12 }}>📊 Reports</h2>
