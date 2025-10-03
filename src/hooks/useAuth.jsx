@@ -68,10 +68,16 @@ export function AuthProvider({ children }) {
           const orgSnap = await getDoc(doc(db, 'organisations', userData.orgId));
           if (orgSnap.exists()) {
             const org = orgSnap.data();
-            const today = new Date().toISOString().split('T')[0];
-            if (org.expiryDate && org.expiryDate < today) {
-              // Subscription expired
-              userData.expired = true;
+            if (org.expiryDate) {
+              const today = new Date();
+              const expiry = new Date(org.expiryDate);
+              const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+
+              if (diffDays < 0) {
+                userData.expired = true;
+              } else if (diffDays <= 30) {
+                userData.expiryWarning = diffDays; // warn if 30 days or less
+              }
             }
           }
         }
