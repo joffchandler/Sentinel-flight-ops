@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// If your repo name is different, change the string below to: '/<your-repo-name>/'
+// IMPORTANT: replace with your repo name (case-sensitive)
 export default defineConfig({
   plugins: [react()],
-  base: '/Sentinelsky-flight-ops/'
+  base: '/Sentinel-flight-ops/'
 })
