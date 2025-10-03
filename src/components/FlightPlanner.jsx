@@ -5,6 +5,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import axios from 'axios';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function FlightPlanner() {
   const { profile } = useAuth();
@@ -15,6 +16,11 @@ export default function FlightPlanner() {
   const [results, setResults] = useState([]);
   const [decision, setDecision] = useState(null);
   const [status, setStatus] = useState('');
+
+  // Override
+  const [overrideReason, setOverrideReason] = useState('');
+  const [overrideFile, setOverrideFile] = useState(null);
+  const [overrideActive, setOverrideActive] = useState(false);
 
   if (!profile?.orgId) {
     return <div style={{ padding: 24 }}>❌ You must belong to an organisation to plan flights.</div>;
@@ -75,6 +81,18 @@ export default function FlightPlanner() {
 
   const saveReport = async () => {
     try {
+      let overrideUrl = null;
+
+      if (overrideFile) {
+        const storage = getStorage();
+        const storageRef = ref(
+          storage,
+          `overrides/${profile.orgId}/${Date.now()}_${overrideFile.name}`
+        );
+        await uploadBytes(storageRef, overrideFile);
+        overrideUrl = await getDownloadURL(storageRef);
+      }
+
       await addDoc(collection(db, 'organisations', profile.orgId, 'flights'), {
         createdBy: profile.email,
         lat,
@@ -83,8 +101,17 @@ export default function FlightPlanner() {
         endDate,
         results,
         decision,
+        override: overrideActive
+          ? {
+              reason: overrideReason,
+              fileUrl: overrideUrl,
+              approvedBy: profile.email,
+              approvedAt: serverTimestamp()
+            }
+          : null,
         createdAt: serverTimestamp()
       });
+
       setStatus('✅ Report saved');
       setTimeout(() => setStatus(''), 2500);
     } catch (err) {
@@ -110,6 +137,15 @@ export default function FlightPlanner() {
       14,
       (docPdf).lastAutoTable.finalY + 10
     );
+
+    if (overrideActive) {
+      docPdf.text(
+        `OVERRIDE AUTHORISED: ${overrideReason || '(no reason given)'}`,
+        14,
+        (docPdf).lastAutoTable.finalY + 20
+      );
+    }
+
     docPdf.save('Flight-Risk-Report.pdf');
   };
 
@@ -185,6 +221,42 @@ export default function FlightPlanner() {
           >
             FINAL DECISION: {decision}
           </div>
+
+          {/* Override section if NO-GO */}
+          {decision === 'NO-GO' && (
+            <div style={{ marginTop: 20, padding: 12, border: '1px solid #ddd', borderRadius: 6 }}>
+              <h3 style={{ marginBottom: 8 }}>Override Authorisation</h3>
+              <label>
+                Reason / Explanation:
+                <textarea
+                  value={overrideReason}
+                  onChange={(e) => setOverrideReason(e.target.value)}
+                  style={{ display: 'block', width: '100%', padding: 6, marginTop: 4 }}
+                />
+              </label>
+              <label style={{ marginTop: 8, display: 'block' }}>
+                Upload Authorisation File:
+                <input type="file" onChange={(e) => setOverrideFile(e.target.files[0])} />
+              </label>
+              <button
+                onClick={() => setOverrideActive(true)}
+                style={{
+                  marginTop: 10,
+                  background: '#f97316',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '6px 12px',
+                  borderRadius: 4,
+                  fontWeight: 600
+                }}
+              >
+                Apply Override
+              </button>
+              {overrideActive && (
+                <p style={{ marginTop: 8, color: '#16a34a' }}>✅ Override applied — will be logged with this report.</p>
+              )}
+            </div>
+          )}
 
           <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
             <button onClick={saveReport} style={btnStyle}>
